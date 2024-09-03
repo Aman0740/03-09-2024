@@ -108,8 +108,75 @@ bcrypt.hash(password, saltRounds, function(err, hash) {
   });
 });
 ```
+## Q-5. One to One relationship in MongoDB ?
 
-## Q-5 One to Many relationship in MongoDB ?
+In MongoDB, a one-to-one relationship between documents can be implemented in a few ways, depending on the specific use case and requirements. Unlike relational databases, MongoDB does not enforce relationships by default, so the schema design is more flexible. Here are the common approaches for modeling a one-to-one relationship in MongoDB:
+
+### 1. Embedded Documents
+
+In this approach, related data is embedded directly within the parent document. This is suitable when the related data is typically accessed together with the parent document.
+
+**Example:**
+
+Consider a scenario where each user has one profile.
+
+```json
+{
+  "_id": ObjectId("605c72f7c68b9a253820c57a"),
+  "username": "john_doe",
+  "email": "john@example.com",
+  "profile": {
+    "age": 30,
+    "address": "123 Main St",
+    "phone": "123-456-7890"
+  }
+}
+```
+
+Here, the `profile` is embedded directly in the `user` document, representing a one-to-one relationship.
+
+### 2. Referenced Documents
+
+In this approach, documents reference each other using unique identifiers. This is suitable when the related data is large, frequently updated, or accessed independently.
+
+**Example:**
+
+We can create two collections: `users` and `profiles`, where each `user` references one `profile`.
+
+**`users` collection:**
+```json
+{
+  "_id": ObjectId("605c72f7c68b9a253820c57a"),
+  "username": "john_doe",
+  "email": "john@example.com",
+  "profile_id": ObjectId("605c72f7c68b9a253820c57b")  // Reference to a profile document
+}
+```
+
+**`profiles` collection:**
+```json
+{
+  "_id": ObjectId("605c72f7c68b9a253820c57b"),
+  "age": 30,
+  "address": "123 Main St",
+  "phone": "123-456-7890"
+}
+```
+
+Here, the `user` document has a `profile_id` field that references the `_id` of a `profile` document, establishing a one-to-one relationship.
+
+### 3. Hybrid Approach
+
+In some cases, a hybrid approach might be useful, where you embed some small fields in the parent document and use references for larger or more frequently changing data.
+
+### Choosing the Right Approach
+
+- **Embedded Documents**: Best when related data is always retrieved together and is not too large.
+- **Referenced Documents**: Best when related data is large, frequently updated, or accessed independently.
+- **Hybrid Approach**: Useful when some fields are small and others are large or change frequently.
+
+
+## Q-6. One to Many relationship in MongoDB ?
 
 In MongoDB, a one-to-many relationship represents a scenario where one document is associated with multiple documents in another collection. MongoDB does not enforce relationships like relational databases, but you can model these relationships using either embedded documents or references. Here’s how you can handle one-to-many relationships:
 
@@ -219,7 +286,7 @@ db.users.aggregate([
 ]);
 ```
 
-## Q-6 Many to Many relationship in MongoDB ?
+## Q-7. Many to Many relationship in MongoDB ?
 
 In MongoDB, a many-to-many relationship is where multiple documents in one collection are related to multiple documents in another collection. MongoDB doesn’t enforce relationships like relational databases, so you’ll need to model these relationships using either embedded documents with arrays or references, and sometimes a combination of both.
 
