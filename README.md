@@ -109,4 +109,117 @@ bcrypt.hash(password, saltRounds, function(err, hash) {
 });
 ```
 
+## Q-5 One to Many relationship in MongoDB ?
+
+In MongoDB, a one-to-many relationship represents a scenario where one document is associated with multiple documents in another collection. MongoDB does not enforce relationships like relational databases, but you can model these relationships using either embedded documents or references. Here’s how you can handle one-to-many relationships:
+
+### 1. **Using Embedded Documents**
+
+In this approach, you embed multiple documents within a single parent document. This is suitable when the related data is closely associated with the parent and is not too large.
+
+**Example:**
+Suppose you have a `user` collection and each user can have multiple `posts`.
+
+```json
+// User document with embedded posts
+{
+  "_id": ObjectId("userId"),
+  "name": "John Doe",
+  "posts": [
+    {
+      "postId": ObjectId("postId1"),
+      "title": "First Post",
+      "content": "Content of the first post"
+    },
+    {
+      "postId": ObjectId("postId2"),
+      "title": "Second Post",
+      "content": "Content of the second post"
+    }
+  ]
+}
+```
+
+**Pros:**
+- Simple to query when you need all data at once.
+- Better performance for reads that require both parent and child data.
+
+**Cons:**
+- Limited scalability for large amounts of embedded data.
+- Updates to embedded documents can be less efficient.
+
+### 2. **Using References**
+
+In this approach, you store the relationship between documents by referencing the `_id` of the related documents. This is suitable for larger datasets or when you need to frequently update or query the child documents independently.
+
+**Example:**
+
+1. **`users` Collection:**
+   ```json
+   {
+     "_id": ObjectId("userId"),
+     "name": "John Doe"
+   }
+   ```
+
+2. **`posts` Collection:**
+   ```json
+   {
+     "_id": ObjectId("postId1"),
+     "userId": ObjectId("userId"),
+     "title": "First Post",
+     "content": "Content of the first post"
+   },
+   {
+     "_id": ObjectId("postId2"),
+     "userId": ObjectId("userId"),
+     "title": "Second Post",
+     "content": "Content of the second post"
+   }
+   ```
+
+To query for a user and their posts, you would first find the user and then find all posts that reference that user’s `_id`.
+
+**Pros:**
+- More scalable for large datasets.
+- Easier to manage and update individual documents.
+
+**Cons:**
+- Requires multiple queries or joins (using `$lookup` in aggregations) to retrieve related data.
+- Slightly more complex to implement compared to embedding.
+
+### **Query Examples**
+
+**Embedded Documents:**
+```javascript
+db.users.findOne({ _id: ObjectId("userId") });
+```
+
+**References:**
+1. Find user:
+   ```javascript
+   db.users.findOne({ _id: ObjectId("userId") });
+   ```
+2. Find posts for that user:
+   ```javascript
+   db.posts.find({ userId: ObjectId("userId") });
+   ```
+
+Alternatively, you can use the aggregation framework to perform a join-like operation:
+```javascript
+db.users.aggregate([
+  {
+    $lookup: {
+      from: "posts",
+      localField: "_id",
+      foreignField: "userId",
+      as: "posts"
+    }
+  }
+]);
+```
+
+
+
+
 
