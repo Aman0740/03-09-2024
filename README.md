@@ -22,3 +22,91 @@
 
 4. **Compatibility**: Bcrypt.js is a JavaScript implementation of the bcrypt algorithm, making it suitable for use in JavaScript environments like Node.js for handling password hashing and verification.
 
+## Q-4. How to use Bcrypt js ?
+
+To use Bcrypt.js in a Node.js application, follow these steps:
+
+1. **Install Bcrypt.js**:
+   First, you need to install Bcrypt.js using npm. Open your terminal and run:
+   ```bash
+   npm install bcryptjs
+   ```
+
+2. **Import Bcrypt.js**:
+   In your Node.js code, require Bcrypt.js:
+   ```javascript
+   const bcrypt = require('bcryptjs');
+   ```
+
+3. **Hash a Password**:
+   Use Bcrypt.js to hash a password. You can specify the number of salt rounds (complexity) as the second argument to the `hash` function. More rounds mean more security but also more computation time.
+   ```javascript
+   const password = 'yourPasswordHere';
+   const saltRounds = 10;
+
+   bcrypt.hash(password, saltRounds, function(err, hash) {
+     if (err) {
+       console.error('Error hashing password:', err);
+       return;
+     }
+     console.log('Hashed password:', hash);
+     // Store the hash in your database
+   });
+   ```
+
+4. **Compare a Password**:
+   To verify a password, use the `compare` function. This checks if a plaintext password matches the hashed password.
+   ```javascript
+   const hashedPassword = 'storedHashedPasswordHere';
+   const enteredPassword = 'userEnteredPassword';
+
+   bcrypt.compare(enteredPassword, hashedPassword, function(err, result) {
+     if (err) {
+       console.error('Error comparing passwords:', err);
+       return;
+     }
+     if (result) {
+       console.log('Password matches!');
+     } else {
+       console.log('Password does not match.');
+     }
+   });
+   ```
+
+5. **Error Handling**:
+   Always handle errors in your callback functions, as shown in the examples. This helps you debug issues and ensures your application handles errors gracefully.
+
+Here’s a complete example of how you might use Bcrypt.js in a simple script:
+
+```javascript
+const bcrypt = require('bcryptjs');
+
+const password = 'mySecurePassword';
+const saltRounds = 10;
+
+// Hash the password
+bcrypt.hash(password, saltRounds, function(err, hash) {
+  if (err) {
+    console.error('Error hashing password:', err);
+    return;
+  }
+
+  console.log('Hashed password:', hash);
+
+  // Compare the password
+  bcrypt.compare(password, hash, function(err, result) {
+    if (err) {
+      console.error('Error comparing passwords:', err);
+      return;
+    }
+
+    if (result) {
+      console.log('Password matches!');
+    } else {
+      console.log('Password does not match.');
+    }
+  });
+});
+```
+
+
