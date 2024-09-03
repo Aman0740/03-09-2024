@@ -12,3 +12,13 @@
 
 - **Adaptive**: Bcrypt’s hashing process is designed to be computationally expensive, making it slower to compute hashes. This adds an additional layer of security by making brute-force attacks more difficult. The cost factor (or work factor) can be adjusted to increase the computational complexity as hardware improves over time.
 
+## Q-3. What is the main purpose of  Bcrypt js ?
+
+1. **Password Security**: Bcrypt.js converts plaintext passwords into hashed versions, which are stored in the database instead of the actual passwords. This adds a layer of security in case of a data breach.
+
+2. **Salting**: It adds a unique salt to each password before hashing, which helps prevent attacks like rainbow table attacks where precomputed hash values are used to crack passwords.
+
+3. **Adaptive Hashing**: Bcrypt’s hashing algorithm is designed to be slow and computationally intensive, making it more resistant to brute-force attacks. The complexity can be adjusted to ensure that as computing power increases, the hashing process remains secure.
+
+4. **Compatibility**: Bcrypt.js is a JavaScript implementation of the bcrypt algorithm, making it suitable for use in JavaScript environments like Node.js for handling password hashing and verification.
+
