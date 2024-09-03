@@ -219,7 +219,164 @@ db.users.aggregate([
 ]);
 ```
 
+## Q-6 Many to Many relationship in MongoDB ?
 
+In MongoDB, a many-to-many relationship is where multiple documents in one collection are related to multiple documents in another collection. MongoDB doesn’t enforce relationships like relational databases, so you’ll need to model these relationships using either embedded documents with arrays or references, and sometimes a combination of both.
 
+### 1. **Using References**
+
+For many-to-many relationships, references are often more appropriate than embedded documents due to the potential complexity and size of the data involved.
+
+**Example:**
+
+Consider a scenario where you have two collections: `students` and `courses`, where each student can enroll in multiple courses, and each course can have multiple students.
+
+1. **`students` Collection:**
+   ```json
+   {
+     "_id": ObjectId("studentId1"),
+     "name": "Alice",
+     "courseIds": [ObjectId("courseId1"), ObjectId("courseId2")]
+   },
+   {
+     "_id": ObjectId("studentId2"),
+     "name": "Bob",
+     "courseIds": [ObjectId("courseId1")]
+   }
+   ```
+
+2. **`courses` Collection:**
+   ```json
+   {
+     "_id": ObjectId("courseId1"),
+     "title": "Mathematics",
+     "studentIds": [ObjectId("studentId1"), ObjectId("studentId2")]
+   },
+   {
+     "_id": ObjectId("courseId2"),
+     "title": "Science",
+     "studentIds": [ObjectId("studentId1")]
+   }
+   ```
+
+Here, each document in the `students` collection has an array of `courseIds`, and each document in the `courses` collection has an array of `studentIds`.
+
+**Pros:**
+- Suitable for many-to-many relationships with moderate amounts of related data.
+- Avoids the complexity of embedding large arrays of documents.
+
+**Cons:**
+- Requires multiple queries to retrieve related data.
+- Updates to relationships may require updates in multiple places.
+
+### **Query Examples**
+
+To find all courses for a particular student:
+
+1. Find the student and retrieve their `courseIds`:
+   ```javascript
+   const student = db.students.findOne({ _id: ObjectId("studentId1") });
+   ```
+
+2. Find all courses that match those `courseIds`:
+   ```javascript
+   db.courses.find({ _id: { $in: student.courseIds } });
+   ```
+
+To find all students enrolled in a particular course:
+
+1. Find the course and retrieve its `studentIds`:
+   ```javascript
+   const course = db.courses.findOne({ _id: ObjectId("courseId1") });
+   ```
+
+2. Find all students that match those `studentIds`:
+   ```javascript
+   db.students.find({ _id: { $in: course.studentIds } });
+   ```
+
+### 2. **Using a Junction Collection**
+
+In cases where you need more flexibility or additional metadata about the relationship itself, you can use a junction collection (sometimes called a join table or associative array).
+
+**Example:**
+
+1. **`students` Collection:**
+   ```json
+   {
+     "_id": ObjectId("studentId1"),
+     "name": "Alice"
+   },
+   {
+     "_id": ObjectId("studentId2"),
+     "name": "Bob"
+   }
+   ```
+
+2. **`courses` Collection:**
+   ```json
+   {
+     "_id": ObjectId("courseId1"),
+     "title": "Mathematics"
+   },
+   {
+     "_id": ObjectId("courseId2"),
+     "title": "Science"
+   }
+   ```
+
+3. **`enrollments` (Junction) Collection:**
+   ```json
+   {
+     "_id": ObjectId("enrollmentId1"),
+     "studentId": ObjectId("studentId1"),
+     "courseId": ObjectId("courseId1")
+   },
+   {
+     "_id": ObjectId("enrollmentId2"),
+     "studentId": ObjectId("studentId1"),
+     "courseId": ObjectId("courseId2")
+   },
+   {
+     "_id": ObjectId("enrollmentId3"),
+     "studentId": ObjectId("studentId2"),
+     "courseId": ObjectId("courseId1")
+   }
+   ```
+
+**Pros:**
+- Provides flexibility for managing many-to-many relationships.
+- Allows for additional fields and metadata in the relationship itself.
+
+**Cons:**
+- Requires additional queries or aggregations to retrieve related data.
+
+**Query Examples**
+
+To find all courses for a particular student using the junction collection:
+
+1. Find all enrollments for the student:
+   ```javascript
+   const enrollments = db.enrollments.find({ studentId: ObjectId("studentId1") });
+   ```
+
+2. Find all courses that correspond to those enrollments:
+   ```javascript
+   const courseIds = enrollments.map(enrollment => enrollment.courseId);
+   db.courses.find({ _id: { $in: courseIds } });
+   ```
+
+To find all students enrolled in a particular course:
+
+1. Find all enrollments for the course:
+   ```javascript
+   const enrollments = db.enrollments.find({ courseId: ObjectId("courseId1") });
+   ```
+
+2. Find all students that correspond to those enrollments:
+   ```javascript
+   const studentIds = enrollments.map(enrollment => enrollment.studentId);
+   db.students.find({ _id: { $in: studentIds } });
+   ```
 
 
